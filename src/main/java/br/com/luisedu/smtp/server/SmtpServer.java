@@ -1,28 +1,32 @@
-package main.java.br.com.luisedu.smtp.server;
+package br.com.luisedu.smtp.server;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class SmtpServer {
+    private static final Logger logger = LoggerFactory.getLogger(SmtpServer.class);
+
     private static final int PORT = 2525;
     private static final String DOMAIN = "smtp.luisedu.com.br";
 
     public static void main(String[] args) {
-        System.out.println("Starting SMTP server...");
-        System.out.println("Domain: " + DOMAIN);
-        System.out.println("Port: " + PORT);
+        logger.info("Starting SMTP server on port {}", PORT);
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Listening on port " + PORT);
+            logger.info("Listening on port {}", PORT);
 
 
             while (true) {
-                System.out.println("Waiting for connection...");
+                logger.debug("Listening on port {}", PORT);
 
                 Socket clientSocket = serverSocket.accept();
 
-                System.out.println("Accepted connection from " + clientSocket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort());
+                logger.info("Client connected from {}:{}", clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort());
 
                 ClientHandler handler = new ClientHandler(clientSocket, DOMAIN);
 
@@ -31,8 +35,7 @@ public class SmtpServer {
                 clientThread.start();
             }
         } catch (IOException e) {
-            System.err.println("Fatal error: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Fatal error on server: {}", e.getMessage(), e);
         }
     }
 }

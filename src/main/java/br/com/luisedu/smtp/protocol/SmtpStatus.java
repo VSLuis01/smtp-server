@@ -1,4 +1,4 @@
-package main.java.br.com.luisedu.smtp.protocol;
+package br.com.luisedu.smtp.protocol;
 
 public enum SmtpStatus {
     // Positive Completion reply (2xx)
