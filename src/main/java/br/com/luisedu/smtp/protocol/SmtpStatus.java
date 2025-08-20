@@ -37,11 +37,11 @@ public enum SmtpStatus {
     }
 
     public String toSmtpResponse() {
-        return String.format("%d, %s", this.code, this.messageTemplate.replace("%s ", ""));
+        return String.format("%d %s", this.code, this.messageTemplate.replace("%s ", ""));
     }
 
     public String toSmtpResponse(String domain) {
         String formatted = String.format(this.messageTemplate, domain);
-        return String.format("%d, %s", this.code, formatted);
+        return String.format("%d %s", this.code, formatted);
     }
 }

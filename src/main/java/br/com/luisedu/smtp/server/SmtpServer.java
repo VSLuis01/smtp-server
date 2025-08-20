@@ -24,7 +24,11 @@ public class SmtpServer {
 
                 System.out.println("Accepted connection from " + clientSocket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort());
 
-                clientSocket.close();
+                ClientHandler handler = new ClientHandler(clientSocket, DOMAIN);
+
+                Thread clientThread = new Thread(handler);
+
+                clientThread.start();
             }
         } catch (IOException e) {
             System.err.println("Fatal error: " + e.getMessage());
