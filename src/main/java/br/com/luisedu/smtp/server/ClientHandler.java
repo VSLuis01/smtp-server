@@ -1,5 +1,6 @@
 package br.com.luisedu.smtp.server;
 
+import br.com.luisedu.smtp.model.Email;
 import br.com.luisedu.smtp.protocol.SessionState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,8 @@ public class ClientHandler implements Runnable {
     // Variáveis da sessão do cliente
     private SessionState currentState;
     private boolean isRunning;
+
+    private Email currentEmail;
 
     public ClientHandler(Socket clientSocket, String serverDomain) {
         this.clientSocket = clientSocket;
@@ -91,12 +94,37 @@ public class ClientHandler implements Runnable {
                 break;
 
             case GREETING:
-                // TODO: lógica para o comando MAIL FROM.
-                logger.warn("Comando não implementado para o estado GREETING: {}", command);
-                sendResponse(writer, SmtpStatus.NOT_IMPLEMENTED);
+                if (!upperCaseCommand.startsWith("MAIL FROM:")) {
+                    sendResponse(writer, SmtpStatus.BAD_SEQUENCE_OF_COMMANDS);
+                    return;
+                }
+
+                this.currentEmail = new Email();
+
+                // extração simples do e-mail.
+                // TODO: implementação de validação de sintaxe mais robusta.
+                int start = command.indexOf('<');
+                int end = command.indexOf('>');
+
+                if (start == -1 || end == -1) {
+                    sendResponse(writer, SmtpStatus.SYNTAX_ERROR);
+                    return;
+                }
+
+                String fromAddress = command.substring(start + 1, end);
+                this.currentEmail.setFrom(fromAddress);
+                logger.debug("from defined as: {}", fromAddress);
+
+                sendResponse(writer, SmtpStatus.OK);
+
+                this.currentState = SessionState.MAIL;
                 break;
 
-            // Outros casos (MAIL, RCPT, etc.) serão adicionados depois.
+            case MAIL:
+                logger.warn("Command not implemented: {}", command);
+                sendResponse(writer, SmtpStatus.NOT_IMPLEMENTED);
+
+                break;
             default:
                 logger.warn("Comando recebido em um estado não tratado ({}): {}", currentState, command);
                 sendResponse(writer, SmtpStatus.SYNTAX_ERROR);

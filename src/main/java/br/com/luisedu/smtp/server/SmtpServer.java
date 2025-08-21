@@ -15,15 +15,11 @@ public class SmtpServer {
     private static final String DOMAIN = "smtp.luisedu.com.br";
 
     public static void main(String[] args) {
-        logger.info("Starting SMTP server on port {}", PORT);
-
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             logger.info("Listening on port {}", PORT);
 
 
             while (true) {
-                logger.debug("Listening on port {}", PORT);
-
                 Socket clientSocket = serverSocket.accept();
 
                 logger.info("Client connected from {}:{}", clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort());
